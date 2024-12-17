@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href='styles.css'> 
+    <title>POKEMON FETCH!</title>
+</head>
+
+<body>
+    <h1 class="header-text">CURRENT POKEMON</h1>
+    
+    <main>
+        <div class="content-box">
+
+            <h3 class="content"></h3>
+            <div class="poke-image"></div>
+            <div class="buttons">
+                <button class="back"><----</button>
+                <button class="forward">----></button>
+            
+            </div>
+            <button class="shiny">shiny?</button>
+
+        </div>
+
+        <button class="fetch-pokemon">get a pokemon</button>
+
+    </main>
+    
+</body>
+</html>
+<script>
+
+let fetchButton = document.querySelector(".fetch-pokemon");
+let shinyButton = document.querySelector(".shiny");
+let backButton = document.querySelector(".back");
+let forwardButton = document.querySelector(".forward");
+let currentData;
+let isBack = false;
+let isShiny = false;
+
+const charminding = async () => {
+    const existingImgElement = document.querySelector(".pokemon-image");
+    let targetImgElement = document.querySelector(".poke-image");
+    let targetTextElement = document.querySelector(".content");
+
+    let id = Math.floor(Math.random() * 100) + 1;
+    let data;
+
+    try {
+        let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`);
+        data = await response.json();
+        currentData = data;
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+
+    if (data) {
+        if (existingImgElement) {
+            existingImgElement.remove();
+        }
+
+        let imageElement = document.createElement("img");
+        imageElement.classList.add("pokemon-image");
+        imageElement.setAttribute("src", data["sprites"]["front_default"]);
+        targetImgElement.append(imageElement);
+
+        targetTextElement.textContent = data["name"]
+
+        isBack = false;
+        isShiny = false;
+        document.querySelector(".shiny").textContent = "shiny?";
+    }
+};
+
+function updateImage() {
+    if (currentData) {
+        const imageElement = document.querySelector(".pokemon-image");
+        let sprite;
+
+        if (isBack) {
+            sprite = isShiny
+                ? currentData["sprites"]["back_shiny"]
+                : currentData["sprites"]["back_default"];
+        } else {
+            sprite = isShiny
+                ? currentData["sprites"]["front_shiny"]
+                : currentData["sprites"]["front_default"];
+        }
+
+        if (imageElement) {
+            imageElement.setAttribute("src", sprite);
+        }
+    }
+}
+
+function navButtonHandler() {
+    if (currentData) {
+        isBack = !isBack; 
+        updateImage();   
+    }
+}
+
+function shiny() {
+        let targetElement = document.querySelector(".shiny");
+        
+        
+
+
+    if (currentData) {
+        if(isShiny) {
+            targetElement.textContent = "shiny?";
+        } else {
+            targetElement.textContent = "not shiny?";
+        }
+        isShiny = !isShiny;
+        updateImage();     
+    }
+}
+
+fetchButton.addEventListener("click", charminding);
+backButton.addEventListener("click", navButtonHandler);
+forwardButton.addEventListener("click", navButtonHandler);
+shinyButton.addEventListener("click", shiny);
+
+
+   
+    
+
+</script>
